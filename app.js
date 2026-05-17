@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalScore = answers.reduce((sum, a) => sum + a.score, 0);
         const percentage = Math.round((totalScore / totalMaxScore) * 100);
 
-        // Animate score
         const scoreValue = document.getElementById('score-value');
         const scoreRing = document.getElementById('score-ring');
         const scoreLabel = document.getElementById('score-label');
@@ -86,16 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
             scoreRing.style.strokeDashoffset = offset;
         }, 100);
 
-        // Score label
         let label, levelClass;
         if (percentage >= 80) {
-            label = 'セキュリティ意識が高い！';
+            label = 'セキュリティ対策バッチリ！安全にClaude Codeを使えています';
             levelClass = 'level-high';
         } else if (percentage >= 50) {
-            label = 'もう少し対策を強化しましょう';
+            label = '基本はできていますが、強化ポイントがあります';
             levelClass = 'level-mid';
         } else {
-            label = 'セキュリティ対策が不足しています';
+            label = 'セキュリティリスクが高い状態です。すぐに対策しましょう';
             levelClass = 'level-low';
         }
         scoreLabel.textContent = label;
@@ -154,29 +152,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateAdvice(categories) {
         const advice = [];
         const thresholds = {
-            'パスワード管理': [
-                'パスワードマネージャーの導入を検討しましょう。すべてのパスワードを安全に管理できます。',
-                'サービスごとに異なる長いパスワードを使いましょう（12文字以上推奨）。'
+            '秘密情報の管理': [
+                'APIキーやパスワードは必ず.envファイルに分離し、コードには環境変数参照で書きましょう。',
+                '.gitignoreに.envを追加し、秘密情報がGitHubに公開されないようにしましょう。',
+                'Claude Codeのプロンプトに直接秘密情報を貼り付けるのは避けましょう。'
             ],
-            '二段階認証・ログイン保護': [
-                '重要なサービス（メール、銀行、SNS）には必ず二段階認証を設定しましょう。',
-                '身に覚えのないログイン通知は、不正アクセスの可能性があります。すぐにパスワードを変更してください。'
+            'Claude Codeのセキュリティ機能': [
+                '/security コマンドでプロジェクトのセキュリティ状態を定期的にチェックしましょう。',
+                'パーミッション設定を見直し、不要なコマンドの自動実行を制限しましょう。',
+                'Hooks機能を活用して、コミット前に秘密情報の漏洩を自動チェックしましょう。'
             ],
-            'フィッシング・詐欺対策': [
-                'メールやSMSのリンクは安易にクリックせず、公式サイトに直接アクセスする癖をつけましょう。',
-                '「至急」「停止」などの緊急性を煽るメールは詐欺の可能性が高いです。落ち着いて対処しましょう。'
+            '生成コードの確認': [
+                'Claude Codeが生成したコードは必ず目を通し、理解してから使いましょう。',
+                'rm -rf や git push --force など破壊的なコマンドは、実行前に影響範囲を確認しましょう。',
+                '外部パッケージの追加時は、npm/GitHub上での信頼性を確認する癖をつけましょう。'
             ],
-            'デバイス・ソフトウェア管理': [
-                'OSやアプリのアップデートにはセキュリティ修正が含まれます。できるだけ早く更新しましょう。',
-                '使っていないアプリやアカウントは情報漏洩のリスクになります。定期的に整理しましょう。'
+            'Git・公開リポジトリ管理': [
+                'pushする前にgit diffで変更内容を確認し、秘密情報が含まれていないかチェックしましょう。',
+                '秘密情報を含むリポジトリは必ずPrivateに設定しましょう。',
+                '一度commitした秘密情報はgit履歴に残ります。漏洩した場合はキーの無効化が最優先です。'
             ],
-            'Wi-Fi・ネットワーク': [
-                'フリーWi-Fiでは通信が盗み見られる可能性があります。ログインや決済は避けましょう。',
-                '自宅Wi-Fiのパスワードは初期設定から変更し、推測されにくいものにしましょう。'
-            ],
-            'データ保護・バックアップ': [
-                '大切なデータは複数箇所にバックアップしましょう（クラウド + 外付けHDDなど）。',
-                'SNSのプライバシー設定を確認し、意図しない情報公開を防ぎましょう。'
+            'プロジェクト設定・CLAUDE.md': [
+                'CLAUDE.mdに「秘密情報をハードコードしない」「.envはgitに含めない」等のルールを明記しましょう。',
+                '破壊的操作（ファイル削除、force pushなど）の前に確認を求めるルールを設定しましょう。',
+                '.env.exampleを用意して、必要な環境変数を文書化しましょう（値はREPLACE_MEで）。'
             ]
         };
 
@@ -184,8 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const catPercent = (data.total / (data.count * maxScorePerQuestion)) * 100;
             if (catPercent < 80 && thresholds[name]) {
                 const items = thresholds[name];
-                if (catPercent < 50) {
+                if (catPercent < 40) {
                     advice.push(...items);
+                } else if (catPercent < 70) {
+                    advice.push(items[0], items[1]);
                 } else {
                     advice.push(items[0]);
                 }
